@@ -1,0 +1,217 @@
+﻿@{
+    Layout = "_ConfigurePlugin";
+}
+@using Microsoft.AspNetCore.Mvc.Razor
+@model Payments.QRTransfer.Models.ConfigurationModel
+@await Component.InvokeAsync("StoreScope")
+<input id="active-menu-item" type="hidden" value="/Admin/Payment/Methods" />
+<form asp-controller="PaymentQRTransfer" asp-action="Configure" method="post">
+
+    @* Localized Section for DescriptionText and PaymentDescription *@
+    @{
+        Func<int, HelperResult>
+            template = @<div class="form-body">
+            <div class="form-group">
+                <div class="col-md-3 col-sm-3 text-right">
+                    <admin-label asp-for="@Model.Locales[item].DescriptionText" class="control-label" />
+                </div>
+                <div class="col-md-9 col-sm-9">
+                    <admin-textarea asp-for="@Model.Locales[item].DescriptionText"></admin-textarea>
+                    <span asp-validation-for="@Model.Locales[item].DescriptionText"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-3 col-sm-3 text-right">
+                    <admin-label asp-for="@Model.Locales[item].PaymentDescription" class="control-label" />
+                </div>
+                <div class="col-md-9 col-sm-9">
+                    <admin-textarea asp-for="@Model.Locales[item].PaymentDescription"></admin-textarea>
+                    <span asp-validation-for="@Model.Locales[item].PaymentDescription"></span>
+                </div>
+            </div>
+            <input asp-for="@Model.Locales[item].LanguageId" type="hidden" />
+        </div>;
+    }
+
+    <div class="form-horizontal">
+        <localized-editor localized-template="@template" name="plugin-settings-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
+            <div class="form-body">
+                <div class="form-group">
+                    <div class="col-md-3 col-sm-3 text-right">
+                        <admin-label asp-for="DescriptionText" class="control-label" />
+                    </div>
+                    <div class="col-md-9 col-sm-9">
+                        <admin-textarea asp-for="DescriptionText"></admin-textarea>
+                        <span asp-validation-for="DescriptionText"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-3 col-sm-3 text-right">
+                        <admin-label asp-for="PaymentDescription" class="control-label" />
+                    </div>
+                    <div class="col-md-9 col-sm-9">
+                        <admin-textarea asp-for="PaymentDescription"></admin-textarea>
+                        <span asp-validation-for="PaymentDescription"></span>
+                    </div>
+                </div>
+            </div>
+        </localized-editor>
+
+        @* General Settings *@
+        <div class="form-body">
+            <div class="form-group">
+                <div class="col-md-3 col-sm-3 text-right">
+                    <admin-label asp-for="AdditionalFee" class="control-label" />
+                </div>
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="AdditionalFee" />
+                    <span asp-validation-for="AdditionalFee"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-3 col-sm-3 text-right">
+                    <admin-label asp-for="AdditionalFeePercentage" class="control-label" />
+                </div>
+                <div class="col-md-9 col-sm-9">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="AdditionalFeePercentage" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="AdditionalFeePercentage"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-3 col-sm-3 text-right">
+                    <admin-label asp-for="ShippableProductRequired" class="control-label" />
+                </div>
+                <div class="col-md-9 col-sm-9">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="ShippableProductRequired" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="ShippableProductRequired"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-3 col-sm-3 text-right">
+                    <admin-label asp-for="SkipPaymentInfo" class="control-label" />
+                </div>
+                <div class="col-md-9 col-sm-9">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="SkipPaymentInfo" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="SkipPaymentInfo"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-3 col-sm-3 text-right">
+                    <admin-label asp-for="DisplayOrder" class="control-label" />
+                </div>
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="DisplayOrder" />
+                    <span asp-validation-for="DisplayOrder"></span>
+                </div>
+            </div>
+        </div>
+
+        @* IMAP Settings *@
+        <h4>IMAP Settings</h4>
+        <div class="form-body">
+            <div class="form-group">
+                <div class="col-md-3 col-sm-3 text-right">
+                    <admin-label asp-for="ImapUsername" class="control-label" />
+                </div>
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="ImapUsername" />
+                    <span asp-validation-for="ImapUsername"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-3 col-sm-3 text-right">
+                    <admin-label asp-for="ImapPassword" class="control-label" />
+                </div>
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="ImapPassword" type="password" />
+                    <span asp-validation-for="ImapPassword"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-3 col-sm-3 text-right">
+                    <admin-label asp-for="ImapHost" class="control-label" />
+                </div>
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="ImapHost" />
+                    <span asp-validation-for="ImapHost"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-3 col-sm-3 text-right">
+                    <admin-label asp-for="ImapPort" class="control-label" />
+                </div>
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="ImapPort" />
+                    <span asp-validation-for="ImapPort"></span>
+                </div>
+            </div>
+        </div>
+
+        @* Banking and Payment Details *@
+        <h4>Banking and Payment Details</h4>
+        <div class="form-body">
+            <div class="form-group">
+                <div class="col-md-3 col-sm-3 text-right">
+                    <admin-label asp-for="FullName" class="control-label" />
+                </div>
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="FullName" />
+                    <span asp-validation-for="FullName"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-3 col-sm-3 text-right">
+                    <admin-label asp-for="IBAN" class="control-label" />
+                </div>
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="IBAN" />
+                    <span asp-validation-for="IBAN"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-3 col-sm-3 text-right">
+                    <admin-label asp-for="BankCode" class="control-label" />
+                </div>
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="BankCode" />
+                    <span asp-validation-for="BankCode"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-3 col-sm-3 text-right">
+                    <admin-label asp-for="IsDynamic" class="control-label" />
+                </div>
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="IsDynamic" />
+                    <span asp-validation-for="IsDynamic"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-3 col-sm-3 text-right">
+                    <admin-label asp-for="ReferenceNo" class="control-label" />
+                </div>
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="ReferenceNo" />
+                    <span asp-validation-for="ReferenceNo"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <div class="row">
+                <div class="offset-md-3 offset-sm-3 col-md-9 col-sm-9">
+                    <input type="submit" name="save" class="btn green" value="@Loc["Admin.Common.Save"]" />
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

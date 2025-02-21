@@ -1,0 +1,255 @@
+﻿@using System.Globalization
+@{
+    Layout = "";
+}
+@model Payments.QRTransfer.Models.PaymentProcessModel
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Secure Payment Processing Page">
+    <meta name="robots" content="noindex, nofollow">
+
+    <title>Secure Payment Processing</title>
+
+    <!-- Corrected CSS Import -->
+    <link rel="stylesheet" type="text/css" href="/Plugins/Payments.QRTransfer/Content/css/tailwind.css">
+</head>
+
+<body class="tw:min-h-screen tw:flex tw:items-center tw:justify-center tw:bg-gray-100 tw:pb-4">
+    <!-- Yardım Butonu - Küçük ekranlar için optimize edildi -->
+    <button onclick="window.open('/nasil-odeme-yapilir.html', '_blank')"
+            class="tw:fixed tw:top-2 tw:right-2 tw:z-40 tw:bg-blue-500 tw:text-white tw:rounded-lg
+                   tw:shadow-lg tw:hover:bg-blue-600 tw:transition tw:duration-200 tw:focus:outline-hidden
+                   tw:focus:ring-2 tw:focus:ring-blue-500 tw:cursor-pointer tw:flex tw:items-center tw:gap-1
+                   tw:text-xs tw:md:text-xl tw:md:px-4 tw:md:py-2 tw:px-2 tw:py-1">
+        <span class="tw:inline">Nasıl Ödeme Yaparım</span>
+        <i class="fas fa-question-circle tw:text-xs tw:md:text-3xl"></i>
+
+    </button>
+
+    <form id="paymentForm" class="tw:p-0 tw:m-0 tw:w-full tw:max-w-4xl tw:md:mt-8" method="post" action="@Model.CallbackUrl" onsubmit="return validateForm()">
+        <div class="tw:relative tw:w-full tw:rounded-lg tw:bg-white tw:p-4 tw:sm:p-6 tw:text-center tw:shadow-xl">
+            <!-- Flex Container -->
+            <div class="tw:flex tw:flex-col tw:md:flex-row tw:md:space-x-4">
+
+                <!-- 1. Alan -->
+                <div class="tw:flex-1">
+
+                    <!-- Banka Logosu (Ortalanmış) -->
+                    <div class="tw:mb-2 tw:sm:mb-4 tw:flex tw:justify-center">
+                        <div class="tw:w-32 tw:sm:w-48">
+                            <img src="/Plugins/Payments.QRTransfer/Content/images/bank_logo.svg">
+                        </div>
+                    </div>
+
+                    <!-- QR Kod SVG + İndirme Simgesi -->
+                    <div class="tw:relative tw:flex tw:justify-center tw:rounded-lg tw:bg-gray-200 tw:p-2 tw:sm:p-4">
+                        <div id="qrcode"></div>
+                        <!-- Daha Şık ve Soft QR Kod İndir Butonu -->
+                        <button id="download-qr"
+                                class="tw:absolute tw:top-1 tw:right-1 tw:bg-gray-300 tw:text-gray-700 tw:rounded-full tw:p-1.5 tw:sm:p-2 tw:shadow-lg tw:hover:bg-gray-400 tw:transition tw:duration-200 tw:focus:outline-hidden tw:focus:ring-2 tw:cursor-pointer tw:focus:ring-gray-500">
+                            <i class="fas fa-download tw:text-base tw:sm:text-lg"></i>
+                        </button>
+                    </div>
+
+                    <!-- Ödeme Tutarı -->
+                    <p class="tw:mt-2 tw:sm:mt-4 tw:text-base tw:sm:text-lg tw:font-semibold tw:text-gray-800 tw:p-2 tw:bg-gray-100 tw:rounded-lg">
+                        Tutar: <span class="tw:font-bold">@(Math.Round(Convert.ToDecimal(Model.TransactionAmount), 2).ToString("F2", CultureInfo.InvariantCulture)) TL</span>
+                    </p>
+                </div>
+                <!-- 1. Alan Bitiş -->
+                <!-- 2. Alan -->
+                <div class="tw:mt-2 tw:flex-1 tw:md:mt-15 tw:px-2 tw:sm:px-4">
+                    <!-- Açıklama -->
+                    <p class="tw:mx-2 tw:sm:mx-5 tw:text-xs tw:sm:text-sm tw:text-gray-600 tw:font-bold tw:bg-yellow-100 tw:p-2 tw:rounded-lg tw:border tw:border-yellow-300">
+                        @Model.Description
+                    </p>
+
+                    <div class="tw:relative tw:my-2">
+                        <input type="text" id="payment_code" name="OrderCode" value="@Model.OrderCode" readonly
+                               class="tw:w-full tw:py-1.5 tw:sm:py-2 tw:px-4 tw:text-center tw:font-mono tw:text-base tw:sm:text-lg tw:border
+                                    tw:border-gray-300 tw:rounded-lg tw:bg-gray-50 tw:focus:outline-hidden tw:focus:ring-1 tw:overflow-hidden" aria-label="Ödeme Kodu">
+                        <button onclick="copyPaymentCode(event)" class="tw:absolute tw:right-1 tw:top-1/2 tw:transform tw:-translate-y-1/2 tw:bg-gray-200 tw:text-gray-600
+                                     tw:rounded-full tw:p-1.5 tw:sm:p-2 tw:shadow tw:hover:bg-gray-300
+                                     tw:transition tw:duration-200 tw:focus:outline-hidden tw:focus:ring-2 tw:cursor-pointer"
+                                aria-label="Kodu Kopyala">
+                            <i class="far fa-copy"></i>
+                        </button>
+                    </div>
+
+                    <!-- Gönderici Adım Farklı Checkbox -->
+                    <div class="tw:mt-2 tw:sm:mt-4 tw:flex tw:items-center tw:justify-center tw:space-x-2 tw:sm:space-x-3">
+                        <input type="checkbox" id="sender_different"
+                               class="tw:h-4 tw:sm:h-5 tw:cursor-pointer tw:w-4 tw:sm:w-5 tw:shrink-0 tw:border-2 tw:border-gray-400 tw:rounded-sm tw:focus:outline-hidden tw:focus:ring-2 tw:transition tw:duration-200" />
+                        <label for="sender_different" class="tw:text-sm tw:sm:text-base tw:cursor-pointer tw:text-gray-800 tw:font-medium">
+                            Gönderici adım farklı
+                        </label>
+                    </div>
+
+                    <div class="tw:relative">
+                        <input type="text" id="sender_name" name="SenderName" value="@($"{Model.FirstName} {Model.LastName}")"
+                               placeholder="Adınızı giriniz" readonly
+                               class="tw:mt-2 tw:w-full tw:rounded-lg tw:border tw:border-gray-300 tw:bg-gray-100 tw:p-2 tw:sm:p-3 tw:text-center tw:text-sm tw:sm:text-base tw:text-gray-700 tw:transition tw:duration-200 tw:focus:ring-1 tw:focus:shadow-md tw:max-w-full" />
+                        <div id="nameError" class="tw:hidden tw:text-red-500 tw:text-sm tw:mt-1">Lütfen gönderici adını giriniz</div>
+                    </div>
+
+                    <input type="hidden" id="qr_data" name="QRData" value="@Model.QRData" />
+                    <input type="hidden" id="order_guid" name="OrderGuid" value="@Model.OrderGuid" />
+                    <!-- İşlem Butonları -->
+                    <div class="tw:mt-4 tw:sm:mt-6 tw:flex tw:justify-between tw:space-x-2 tw:sm:space-x-4">
+                        <button type="submit" name="Action" value="cancel" class="tw:flex-1 tw:bg-red-500 tw:text-white tw:py-2 tw:sm:py-3 tw:px-1 tw:sm:px-2 tw:rounded-lg tw:font-semibold
+                            tw:shadow-md tw:hover:bg-red-600 tw:transition tw:duration-200 tw:focus:outline-hidden tw:text-xs tw:sm:text-sm
+                            tw:focus:ring-2 tw:focus:ring-red-500 tw:cursor-pointer">
+                            İptal Et
+                        </button>
+                        <button type="submit" name="Action" value="confirm" class="tw:flex-1 tw:bg-green-500 tw:text-white tw:py-2 tw:sm:py-3 tw:px-1 tw:sm:px-2 tw:rounded-lg tw:font-semibold
+                            tw:shadow-md tw:hover:bg-green-600 tw:transition tw:duration-200 tw:focus:outline-hidden tw:text-xs tw:sm:text-sm
+                            tw:focus:ring-2 tw:focus:ring-green-500 tw:cursor-pointer">
+                            Transfer Yaptım
+                        </button>
+                    </div>
+                </div>
+                <!-- 2. Alan Bitiş -->
+
+            </div>
+        </div>
+    </form>
+    <!-- Corrected JS Import -->
+    <script src="/Plugins/Payments.QRTransfer/Content/script/qr_code_styling191.js"></script>
+    <script src="/Plugins/Payments.QRTransfer/Content/script/font_awesome642.js"></script>
+
+    <script>
+
+        const customEncoding = (input) => {
+            let utf8Bytes = new TextEncoder().encode(input);
+            let latin1String = Array.from(utf8Bytes).map(byte => String.fromCharCode(byte)).join('');
+            return latin1String;
+        }
+
+        // QR kodu oluştur
+        const qrContainer = document.getElementById("qrcode");
+        const paymentCode = document.getElementById("payment_code").value;
+        const qrData = document.getElementById("qr_data").value;
+        const senderName = document.getElementById("sender_name").value;
+
+        // SVG QR Kod Oluşturma
+        const qrCode = new QRCodeStyling({
+            width: window.innerWidth < 375 ? 180 : 230, // Küçük ekranlar için daha küçük QR kod
+            height: window.innerWidth < 375 ? 180 : 230,
+            type: "svg",
+            data: customEncoding(qrData),
+            image: "", // İstenirse logo eklenebilir
+            dotsOptions: {
+                color: "#000",
+                type: "rounded"
+            },
+            backgroundOptions: {
+                color: "#ffffff"
+            },
+            cornersSquareOptions: {
+                color: "#000",
+                type: "extra-rounded"
+            }
+        });
+
+        qrCode.append(qrContainer);
+
+        // Form doğrulama fonksiyonu
+        function validateForm() {
+            const senderDifferent = document.getElementById('sender_different');
+            const senderNameInput = document.getElementById('sender_name');
+            const nameError = document.getElementById('nameError');
+
+            if (senderDifferent.checked && (!senderNameInput.value || senderNameInput.value.trim() === '')) {
+                nameError.classList.remove('tw:hidden');
+                senderNameInput.classList.add('tw:border-red-500');
+                senderNameInput.focus();
+                return false;
+            }
+
+            nameError.classList.add('tw:hidden');
+            senderNameInput.classList.remove('tw:border-red-500');
+            return true;
+        }
+
+        // Gönderici adım farklı checkbox'ı
+        document.getElementById('sender_different').addEventListener('change', function () {
+            const input = document.getElementById('sender_name');
+            const nameError = document.getElementById('nameError');
+
+            if (this.checked) {
+                input.value = "";
+                input.removeAttribute('readonly');
+                input.classList.remove('tw:bg-gray-200', 'tw:text-gray-500');
+                input.classList.add('tw:bg-white');
+                input.focus();
+            } else {
+                input.setAttribute('readonly', true);
+                input.classList.add('tw:bg-gray-200', 'tw:text-gray-500');
+                input.classList.remove('tw:bg-white');
+                input.value = senderName;
+                nameError.classList.add('tw:hidden');
+                input.classList.remove('tw:border-red-500');
+            }
+        });
+
+        // Gönderici adı input event listener
+        document.getElementById('sender_name').addEventListener('input', function() {
+            const nameError = document.getElementById('nameError');
+            nameError.classList.add('tw:hidden');
+            this.classList.remove('tw:border-red-500');
+        });
+
+        // Copy to Clipboard - Mobil uyumlu versiyon
+        async function copyPaymentCode(e) {
+            e.preventDefault();
+            const code = document.getElementById('payment_code');
+            const text = code.value;
+
+            try {
+                // Modern yöntem
+                if (navigator.clipboard && window.isSecureContext) {
+                    await navigator.clipboard.writeText(text);
+                }
+                // Eski yöntem - Mobil tarayıcılar için
+                else {
+                    const textArea = document.createElement("textarea");
+                    textArea.value = text;
+                    textArea.style.position = "fixed";
+                    textArea.style.left = "-999999px";
+                    textArea.style.top = "-999999px";
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    try {
+                        document.execCommand('copy');
+                        textArea.remove();
+                    } catch (error) {
+                        console.error("Kopyalama başarısız:", error);
+                        textArea.remove();
+                        return;
+                    }
+                }
+                // Başarılı kopyalama geri bildirimi
+                const originalText = code.value;
+                code.value = 'Kopyalandı! ✓';
+                setTimeout(() => code.value = originalText, 1500);
+            } catch (error) {
+                console.error("Kopyalama başarısız:", error);
+            }
+        }
+
+        // QR kodunu indir
+        document.getElementById('download-qr').addEventListener('click', function (e) {
+            e.preventDefault();
+            qrCode.download({ name: "qr-kod", extension: "png" });
+        });
+    </script>
+</body>
+
+</html>

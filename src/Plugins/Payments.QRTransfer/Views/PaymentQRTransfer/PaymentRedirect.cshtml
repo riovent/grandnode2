@@ -1,0 +1,47 @@
+@{
+    Layout = "";
+}
+@model Payments.QRTransfer.Models.PaymentRedirectModel
+
+<!doctype html>
+<html lang="en">
+<head>
+    <title>QR Transfer 3D-Secure Processing Page</title>
+</head>
+<body>
+    <form id="qrtransfer-3ds-form" action="@Model.ProcessUrl" method="post">
+        <input type="hidden" name="Id" value="@Model.PaymentTransactionId">
+        <input type="hidden" name="BankName" value="@Model.BankName">
+        <input type="hidden" name="ProcessUrl" value="@Model.ProcessUrl">
+        <input type="hidden" name="CallbackUrl" value="@Model.CallbackUrl">
+        <input type="hidden" name="PaymentMethodSystemName" value="@Model.PaymentMethodSystemName">
+        <input type="hidden" name="TransactionStatus" value="@Model.TransactionStatus">
+        <input type="hidden" name="StoreId" value="@Model.StoreId">
+        <input type="hidden" name="OrderGuid" value="@Model.OrderGuid">
+        <input type="hidden" name="OrderCode" value="@Model.OrderCode">
+        <input type="hidden" name="CustomerId" value="@Model.CustomerId">
+        <input type="hidden" name="CustomerEmail" value="@Model.CustomerEmail">
+        <input type="hidden" name="CurrencyCode" value="@Model.CurrencyCode">
+        <input type="hidden" name="CurrencyRate" value="@Model.CurrencyRate">
+        <input type="hidden" name="TransactionAmount" value="@Model.TransactionAmount">
+        <input type="hidden" name="PaidAmount" value="@Model.PaidAmount">
+        <input type="hidden" name="RefundedAmount" value="@Model.RefundedAmount">
+        <input type="hidden" name="IPAddress" value="@Model.IPAddress">
+        <input type="hidden" name="AuthorizationTransactionId" value="@Model.AuthorizationTransactionId">
+        <input type="hidden" name="AuthorizationTransactionCode" value="@Model.AuthorizationTransactionCode">
+        <input type="hidden" name="AuthorizationTransactionResult" value="@Model.AuthorizationTransactionResult">
+        <input type="hidden" name="CaptureTransactionId" value="@Model.CaptureTransactionId">
+        <input type="hidden" name="CaptureTransactionResult" value="@Model.CaptureTransactionResult">
+        <input type="hidden" name="Description" value="@Model.Description">
+        <input type="hidden" name="AdditionalInfo" value="@Model.AdditionalInfo">
+
+        <noscript>
+            <p>JavaScript is disabled. Please click the button below to proceed with your payment.</p>
+            <button type="submit">Continue to Payment</button>
+        </noscript>
+    </form>
+    <script type="text/javascript">
+        document.getElementById("qrtransfer-3ds-form").submit();
+    </script>
+</body>
+</html>
